@@ -1,100 +1,108 @@
 # Sistema de Builds
 
-Sistema desenvolvido em **C#** para gerenciamento de builds de personagens.
+API desenvolvida em **C#** para gerenciamento de builds de personagens, utilizando ASP.NET Core, Entity Framework Core e SQLite.
 
 ## Tecnologias utilizadas
 
-* C#
-* .NET
-* ASP.NET Core
-* Entity Framework Core
-* SQLite
-* Git
-* GitHub
-* Visual Studio Code
+- C#
+- .NET 10
+- ASP.NET Core
+- Entity Framework Core
+- SQLite
+- Git
+- GitHub
+- Visual Studio Code
 
 ---
 
-# Configuração inicial do projeto
+# 1. Pré-requisitos
 
-## 1. Criar o repositório no GitHub
+Antes de começar, instale as seguintes ferramentas:
 
-Criar um repositório no GitHub chamado:
+- **.NET 10 SDK:** para criar, compilar e executar o projeto.
+- **Git:** para controlar as versões do código.
+- **Visual Studio Code:** editor utilizado no desenvolvimento.
+
+Links oficiais:
+
+- [.NET](https://dotnet.microsoft.com/download)
+- [Git](https://git-scm.com/downloads)
+- [Visual Studio Code](https://code.visualstudio.com/)
+
+Para testar as requisições HTTP pelo VS Code, também é recomendada a extensão REST Client.
+
+---
+
+# 2. Criar o repositório no GitHub
+
+Crie um repositório no GitHub com o nome:
 
 ```text
 SistemaBuilds
 ```
 
-Durante a criação do repositório:
+Durante a criação, é possível adicionar:
 
-* Adicionar um `README.md`
-* Adicionar o `.gitignore` para C#
+- `README.md`
+- `.gitignore` para C#
+
+O arquivo `.gitignore` evita que arquivos desnecessários, como arquivos temporários e artefatos de compilação, sejam enviados ao repositório.
+
+Repositório do projeto: https://github.com/Pelison007/SistemaBuilds
 
 ---
 
-## 2. Clonar o repositório
+# 3. Clonar o repositório
 
-No terminal, acessar a pasta onde deseja armazenar o projeto.
+Abra o terminal e acesse a pasta onde deseja armazenar o projeto.
 
-Exemplo:
-
-```powershell
-cd Desktop
-```
-
-Depois, clonar o repositório:
+Exemplo no Windows:
 
 ```powershell
-git clone URL_DO_REPOSITORIO
+cd "$HOME\Desktop"
 ```
 
-O Git criará automaticamente a pasta `SistemaBuilds`.
+Clone o repositório:
 
-Entrar na pasta:
+```powershell
+git clone https://github.com/Pelison007/SistemaBuilds.git
+```
+
+Entre na pasta criada:
 
 ```powershell
 cd SistemaBuilds
 ```
 
-> O `git clone` já configura o Git local e conecta o projeto ao repositório do GitHub. Por isso, não é necessário executar `git init`.
+O comando `git clone` baixa os arquivos do repositório e configura a conexão com o GitHub.
+
+**Importante:** ao clonar um repositório existente, não é necessário executar `git init`.
 
 ---
 
-# Configuração da Solution
+# 4. Criar a Solution e a API (configuração do zero)
 
-## 3. Criar a Solution
+Esta seção documenta os comandos utilizados para criar a estrutura inicial. Se você já clonou o repositório com a Solution e a API existentes, não precisa executar esses comandos novamente.
 
-Dentro da pasta `SistemaBuilds`:
+## 4.1. Criar a Solution
+
+Dentro da pasta principal do projeto:
 
 ```powershell
 dotnet new sln -n SistemaBuilds
 ```
 
-Esse comando cria a Solution chamada `SistemaBuilds`.
+Esse comando cria a Solution `SistemaBuilds.sln`, que organiza os projetos da aplicação.
 
----
-
-## 4. Criar a API
-
-Criar o projeto da API:
+## 4.2. Criar o projeto da API
 
 ```powershell
 dotnet new webapi -n SistemaBuilds.API
 ```
 
-Isso cria a pasta:
+Esse comando cria o projeto ASP.NET Core Web API na pasta `SistemaBuilds.API`.
 
-```text
-SistemaBuilds.API
-```
-
-contendo o projeto da API ASP.NET Core.
-
----
-
-## 5. Adicionar a API à Solution
-
-Adicionar o projeto da API à Solution:
+## 4.3. Adicionar a API à Solution
 
 ```powershell
 dotnet sln add .\SistemaBuilds.API\SistemaBuilds.API.csproj
@@ -106,376 +114,374 @@ Para verificar os projetos adicionados:
 dotnet sln list
 ```
 
-Resultado esperado:
+O resultado deve incluir:
 
 ```text
-Projetos
---------
 SistemaBuilds.API\SistemaBuilds.API.csproj
 ```
 
 ---
 
-## 6. Executar a API
+# 5. Configurar o banco de dados
 
-Para executar o projeto:
+O projeto utiliza SQLite para armazenar os dados e Entity Framework Core para mapear as classes C# para tabelas do banco.
 
-```powershell
-dotnet run
-```
+## 5.1. Instalar o pacote SQLite
 
-Esse comando inicia a API localmente.
-
----
-
-# Banco de dados
-
-## 7. Instalar o Entity Framework Core para SQLite
-
-Instalar o pacote SQLite:
+Execute na pasta principal do projeto:
 
 ```powershell
 dotnet add .\SistemaBuilds.API\SistemaBuilds.API.csproj package Microsoft.EntityFrameworkCore.Sqlite --version 10.0.12
 ```
 
-Esse pacote permite utilizar o banco de dados SQLite através do Entity Framework Core.
+Esse pacote permite que o Entity Framework Core trabalhe com o banco SQLite.
 
----
-
-## 8. Instalar o Entity Framework Core Design
-
-Instalar o pacote Design:
+## 5.2. Instalar o pacote Design
 
 ```powershell
 dotnet add .\SistemaBuilds.API\SistemaBuilds.API.csproj package Microsoft.EntityFrameworkCore.Design --version 10.0.12
 ```
 
-Esse pacote fornece recursos necessários para trabalhar com o Entity Framework Core durante o desenvolvimento.
+Esse pacote fornece recursos utilizados durante o desenvolvimento, incluindo operações relacionadas às migrations.
 
----
+## 5.3. Instalar ou verificar a ferramenta de migrations
 
-# Estrutura do banco de dados
+A ferramenta `dotnet-ef` é utilizada para executar comandos do Entity Framework Core pelo terminal.
 
-## 9. Criar o AppDbContext
-
-Foi criada a pasta:
-
-```text
-SistemaBuilds.API
-└── Data
-    └── AppDbContext.cs
-```
-
-O `AppDbContext` representa o contexto utilizado pelo Entity Framework Core para trabalhar com o banco de dados.
-
-O banco utilizado pelo projeto será:
-
-```text
-SistemaBuilds.db
-```
-
-A conexão com o SQLite utiliza:
-
-```text
-Data Source=SistemaBuilds.db
-```
-
----
-
-# Entidades
-
-## 10. Criar a pasta Models
-
-Foi criada a pasta:
-
-```text
-SistemaBuilds.API
-└── Models
-```
-
-Nessa pasta ficam as entidades que representam as tabelas do sistema.
-
-Atualmente foram criadas:
-
-```text
-Models
-├── Classe.cs
-├── Personagem.cs
-└── Equipamento.cs
-```
-
-### Classe
-
-Representa as classes disponíveis para os personagens.
-
-Possui:
-
-* `Id`
-* `Nome`
-
-### Personagem
-
-Representa os personagens cadastrados no sistema.
-
-Possui:
-
-* `Id`
-* `Nome`
-* `Nivel`
-* `ClasseId`
-
-### Equipamento
-
-Representa os equipamentos utilizados nas builds.
-
-Possui:
-
-* `Id`
-* `Nome`
-* `Tipo`
-* `Ataque`
-* `Defesa`
-
-Os relacionamentos entre essas entidades serão configurados nas próximas etapas.
-
----
-
-# Git
-
-Como o projeto foi criado a partir de um repositório clonado do GitHub, o Git já está configurado.
-
-## 11. Verificar o estado do projeto
-
-```powershell
-git status
-```
-
-Esse comando mostra o estado atual dos arquivos do projeto.
-
----
-
-## 12. Adicionar as alterações
-
-```powershell
-git add .
-```
-
-O `.` representa todos os arquivos novos ou modificados da pasta atual.
-
----
-
-## 13. Criar um commit
-
-```powershell
-git commit -m "mensagem do commit"
-```
-
-O commit registra as alterações no histórico do projeto.
-
----
-
-## 14. Enviar as alterações para o GitHub
-
-```powershell
-git push
-```
-
-Esse comando envia os commits locais para o repositório remoto no GitHub.
-
----
-
-# Sincronização com o GitHub
-
-Quando uma alteração for feita diretamente pelo site do GitHub, como uma alteração no `README.md`, é necessário atualizar o repositório local antes de continuar trabalhando.
-
-No terminal:
-
-```powershell
-git pull origin main
-```
-
-Esse comando baixa as alterações do GitHub para o repositório local.
-
-Depois de realizar alterações no projeto pelo VS Code:
-
-```powershell
-git add .
-git commit -m "mensagem do commit"
-git push
-```
-
-Dessa forma, as alterações feitas localmente são enviadas novamente para o GitHub.
-
----
-
-# Estrutura atual do projeto
-
-```text
-SistemaBuilds
-│
-├── SistemaBuilds.sln
-│
-├── SistemaBuilds.API
-│   ├── Data
-│   │   └── AppDbContext.cs
-│   │
-│   ├── Models
-│   │   ├── Classe.cs
-│   │   ├── Personagem.cs
-│   │   └── Equipamento.cs
-│   │
-│   ├── Program.cs
-│   ├── SistemaBuilds.API.csproj
-│   └── ...
-│
-├── .gitignore
-└── README.md
-```
-
-## 🗄️ Banco de Dados
-
-O projeto utiliza **SQLite** para armazenar os dados e **Entity Framework Core** para gerenciar o acesso ao banco de dados.
-
-O `AppDbContext` define os conjuntos de entidades que representam as tabelas do sistema:
-
-- `Classes`
-- `Personagens`
-- `Equipamentos`
-
-A conexão com o banco de dados é configurada por meio do método `UseSqlite()`, utilizando o arquivo `SistemaBuilds.db`.
-
-A estrutura do banco é gerenciada por meio de **migrations**, permitindo registrar e aplicar alterações nos modelos de forma controlada.
-
----
-
-## 🔗 Relacionamento entre Classe e Personagem
-
-A entidade `Personagem` possui a propriedade `ClasseId`, que funciona como chave estrangeira e referencia a propriedade `Id` da entidade `Classe`.
-
-O relacionamento foi configurado no `AppDbContext` utilizando os métodos `HasOne()`, `WithMany()` e `HasForeignKey()`.
-
-| Propriedade | Descrição |
-|---|---|
-| `ClasseId` | Chave estrangeira que identifica a classe do personagem. |
-| `Classe` | Propriedade de navegação que permite acessar a classe relacionada. |
-| `Classe.Id` | Identificador da classe referenciada pelo personagem. |
-
-**Cardinalidade:** uma classe pode estar associada a vários personagens, enquanto cada personagem pode estar associado a uma classe.
-
-Esse relacionamento garante que a associação entre personagens e classes seja representada no banco de dados por meio de uma chave estrangeira.
-
----
-
-## ⚙️ Migrations
-
-As migrations do Entity Framework Core permitem controlar a criação e as alterações na estrutura do banco de dados ao longo do desenvolvimento.
-
-### 1. Verificar a versão da ferramenta
-
-Para verificar a versão instalada do `dotnet-ef`, foi executado:
+Para verificar se ela já está instalada:
 
 ```powershell
 dotnet ef --version
 ```
 
-**Versão utilizada:** `10.0.12`.
+Versão utilizada no desenvolvimento: `10.0.12`.
 
-### 2. Verificar o contexto
-
-Para confirmar que o Entity Framework Core reconhece o contexto e a configuração do banco de dados, foi executado:
+Se a ferramenta ainda não estiver instalada globalmente, utilize:
 
 ```powershell
-dotnet ef dbcontext info
+dotnet tool install --global dotnet-ef --version 10.0.12
 ```
 
-O comando confirmou o reconhecimento do contexto `SistemaBuild.API.Data.AppDbContext` e do provedor SQLite.
+Não é necessário executar a instalação novamente caso a ferramenta já esteja disponível.
 
-### 3. Criar a migration inicial
+---
 
-A migration inicial foi criada com o comando:
+# 6. Estrutura do banco de dados
+
+## AppDbContext
+
+O arquivo `AppDbContext.cs` fica na pasta `Data` e representa o contexto do Entity Framework Core.
+
+Ele define os conjuntos de entidades utilizados pelo sistema:
+
+- `Classes`
+- `Personagens`
+- `Equipamentos`
+
+A conexão utiliza SQLite, com o arquivo:
+
+```text
+SistemaBuilds.db
+```
+
+A configuração da conexão utiliza:
+
+```text
+Data Source=SistemaBuilds.db
+```
+
+## Criar e atualizar o banco com migrations
+
+Os comandos a seguir devem ser executados dentro da pasta da API:
+
+```powershell
+cd .\SistemaBuilds.API
+```
+
+Para criar uma migration inicial:
 
 ```powershell
 dotnet ef migrations add CriacaoInicial
 ```
 
-Essa migration registra a criação das tabelas `Classes`, `Personagens` e `Equipamentos`, incluindo a chave estrangeira `Personagens.ClasseId`, que referencia `Classes.Id`.
-
-Os arquivos gerados ficam armazenados na pasta `Migrations`.
-
-### 4. Aplicar a migration
-
-Para aplicar a migration e criar a estrutura do banco de dados, foi executado:
+Para aplicar as migrations ao banco:
 
 ```powershell
 dotnet ef database update
 ```
 
-A operação foi concluída com sucesso, criando as tabelas e aplicando o relacionamento definido no modelo.
+Para consultar as informações do contexto:
 
-### 5. Verificar as migrations
+```powershell
+dotnet ef dbcontext info
+```
 
-Para listar as migrations disponíveis e verificar seu estado de aplicação, utilize:
+Para listar as migrations:
 
 ```powershell
 dotnet ef migrations list
 ```
 
-O Entity Framework Core utiliza a tabela `__EFMigrationsHistory` para registrar as migrations aplicadas ao banco de dados.
+A migration inicial `CriacaoInicial` foi criada e aplicada durante o desenvolvimento. Ela registra a estrutura inicial das tabelas e o relacionamento entre personagens e classes.
 
-### 6. Criar migrations futuras
+O Entity Framework Core utiliza a tabela `__EFMigrationsHistory` para registrar as migrations aplicadas.
 
-Quando houver alterações nos modelos ou na estrutura do banco, uma nova migration poderá ser criada e aplicada com os seguintes comandos:
+Quando for necessário alterar a estrutura do banco, crie uma nova migration e aplique-a:
 
 ```powershell
 dotnet ef migrations add NomeDaAlteracao
 dotnet ef database update
 ```
 
-Substitua `NomeDaAlteracao` por um nome que descreva a mudança realizada, como `AdicionarCampoDescricao`.
-
-Dessa forma, as alterações na estrutura do banco de dados ficam registradas e podem ser aplicadas de maneira controlada durante o desenvolvimento do projeto.
+Substitua `NomeDaAlteracao` por um nome que descreva a modificação.
 
 ---
 
-## Testes HTTP
+# 7. Entidades do sistema
 
-Para testar as requisições da API, foi criado o arquivo `Testes/Requisicoes.http`, utilizando a extensão REST Client no Visual Studio Code.
+As entidades representam os dados que serão armazenados no banco.
 
-O arquivo centraliza as requisições HTTP do projeto e utiliza a variável `@baseUrl` para facilitar a configuração do endereço da API.
+## Classe
 
-### Requisições configuradas
+Representa uma classe de personagem.
 
-| Método | Endpoint | Descrição |
-|---|---|---|
-| GET | `/` | Testa o endereço raiz da API. |
-| GET | `/classes/listar` | Consulta as classes cadastradas. |
+Propriedades:
 
-Os testes devem ser executados com a API em funcionamento.
+- `Id`: identificador da classe.
+- `Nome`: nome da classe.
+
+Exemplos de classes para o sistema: Arqueiro, Guerreiro e Mago.
+
+## Personagem
+
+Representa um personagem cadastrado.
+
+Propriedades:
+
+- `Id`: identificador do personagem.
+- `Nome`: nome do personagem.
+- `Nivel`: nível do personagem.
+- `ClasseId`: identificador da classe associada.
+- `Classe`: propriedade de navegação para acessar a classe relacionada.
+
+## Equipamento
+
+Representa um equipamento utilizado na composição de builds.
+
+Propriedades:
+
+- `Id`: identificador do equipamento.
+- `Nome`: nome do equipamento.
+- `Tipo`: tipo do equipamento.
+- `Ataque`: atributo de ataque.
+- `Defesa`: atributo de defesa.
+
+---
+
+# 8. Relacionamento entre Classe e Personagem
+
+A entidade `Personagem` possui a propriedade `ClasseId`, que funciona como chave estrangeira e referencia `Classe.Id`.
+
+O relacionamento foi configurado no `AppDbContext` por meio dos métodos `HasOne()`, `WithMany()` e `HasForeignKey()`.
+
+| Propriedade | Função |
+|---|---|
+| `Personagem.ClasseId` | Armazena o identificador da classe associada. |
+| `Personagem.Classe` | Permite acessar a classe relacionada por meio da propriedade de navegação. |
+| `Classe.Id` | Identifica a classe referenciada. |
+
+**Cardinalidade:** uma classe pode estar associada a vários personagens, enquanto cada personagem está associado a uma classe.
+
+Esse relacionamento permite representar no banco qual classe pertence a cada personagem.
+
+---
+
+# 9. Executar a API
+
+Para iniciar a API, entre na pasta do projeto:
+
+```powershell
+cd .\SistemaBuilds.API
+```
+
+Execute:
+
+```powershell
+dotnet run
+```
+
+O terminal informará o endereço local em que a API está sendo executada.
+
+Mantenha o terminal aberto enquanto realiza os testes. Se a porta informada for diferente da utilizada no arquivo de requisições, atualize a variável `@baseUrl`.
+
+---
+
+# 10. Testar as requisições HTTP
+
+Foi criado o arquivo `Testes/Requisicoes.http` para organizar as requisições utilizadas durante o desenvolvimento.
+
+Os testes podem ser executados pelo Visual Studio Code com a extensão REST Client.
 
 ## Rotas da API
 
 ### Classes
 
-#### Listar classes
-- **Método:** `GET`
-- **Endpoint:** `/classes/listar`
-- **Descrição:** consulta as classes armazenadas no banco de dados SQLite.
-- **Respostas:** retorna `200 OK` com a lista de classes ou `400 Bad Request` quando não existem classes cadastradas, conforme a implementação atual.
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/` | Retorna uma mensagem de apresentação da API. |
+| GET | `/classes/listar` | Lista as classes cadastradas. |
+| POST | `/classes/cadastrar` | Cadastra uma classe. |
+| PUT | `/classes/atualizar/{id}` | Altera o nome de uma classe existente. |
+| DELETE | `/classes/excluir/{id}` | Exclui uma classe existente. |
 
-Novas rotas serão documentadas nesta seção conforme as funcionalidades forem desenvolvidas.
+A rota de listagem retorna `200 OK` com os dados quando existem classes cadastradas e `400 Bad Request` quando a lista está vazia, conforme a implementação atual.
 
-# Desenvolvimento
+As rotas de alteração e exclusão retornam `404 Not Found` quando o identificador informado não corresponde a uma classe existente.
 
-O sistema será desenvolvido utilizando uma API em C#, banco de dados e entidades relacionadas.
+## Exemplos de requisições
 
-As próximas etapas serão adicionadas neste README conforme o desenvolvimento do projeto avançar.
+O exemplo abaixo considera que a API está disponível em `http://localhost:5011`. Caso a porta seja diferente, ajuste a variável.
 
-Próximas etapas:
+```http
+@baseUrl = http://localhost:5011
 
-* Configurar as tabelas no `AppDbContext`
-* Criar as migrations
-* Criar o banco de dados
-* Desenvolver os endpoints da API
-* Implementar o CRUD
-* Implementar a funcionalidade de criação e gerenciamento das builds
-* Calcular os atributos das builds dos personagens
+###
+
+GET {{baseUrl}}/
+
+###
+
+GET {{baseUrl}}/classes/listar
+Accept: application/json
+
+###
+
+POST {{baseUrl}}/classes/cadastrar
+Content-Type: application/json
+
+{
+    "nome": "Guerreiro"
+}
+
+###
+
+PUT {{baseUrl}}/classes/atualizar/1
+Content-Type: application/json
+
+{
+    "nome": "Paladino"
+}
+
+###
+
+DELETE {{baseUrl}}/classes/excluir/1
+```
+
+**Atenção:** os identificadores utilizados nos exemplos devem corresponder aos registros existentes no banco. Evite executar a requisição DELETE sem conferir qual registro será excluído.
+
+---
+
+# 11. Controle de versão com Git e GitHub
+
+O Git é utilizado para registrar as alterações realizadas durante o desenvolvimento, enquanto o GitHub hospeda o repositório remoto.
+
+## Verificar o estado do projeto
+
+```powershell
+git status
+```
+
+## Adicionar as alterações
+
+```powershell
+git add .
+```
+
+## Criar um commit
+
+```powershell
+git commit -m "Descrição da alteração"
+```
+
+Exemplo:
+
+```powershell
+git commit -m "Implementa CRUD de classes"
+```
+
+## Enviar as alterações ao GitHub
+
+```powershell
+git push
+```
+
+É recomendável criar commits pequenos e descritivos após concluir etapas importantes, como a criação dos modelos, a configuração do relacionamento e a implementação das rotas.
+
+## Sincronizar alterações feitas no GitHub
+
+Se houver alterações realizadas diretamente pelo site do GitHub, atualize o repositório local antes de enviar novas alterações:
+
+```powershell
+git pull origin main
+```
+
+Depois de realizar suas modificações no VS Code:
+
+```powershell
+git add .
+git commit -m "Descrição da alteração"
+git push
+```
+
+Isso ajuda a manter o repositório local sincronizado com o remoto. Se houver conflitos, resolva-os antes de continuar.
+
+---
+
+# 12. Estrutura do projeto
+
+A estrutura principal do projeto é organizada da seguinte maneira:
+
+```text
+SistemaBuilds/
+├── SistemaBuilds.sln
+├── SistemaBuilds.API/
+│   ├── Data/
+│   │   └── AppDbContext.cs
+│   ├── Modelo/
+│   │   ├── Classe.cs
+│   │   ├── Personagem.cs
+│   │   └── Equipamento.cs
+│   ├── Migrations/
+│   ├── Testes/
+│   │   └── Requisicoes.http
+│   ├── Program.cs
+│   ├── SistemaBuilds.API.csproj
+│   └── SistemaBuilds.db
+├── .gitignore
+└── README.md
+```
+
+A estrutura acima representa a organização esperada dos arquivos principais. Arquivos adicionais podem existir conforme a configuração do projeto.
+
+---
+
+# 13. Estado atual e próximos passos
+
+## Implementado
+
+- Estrutura inicial da Solution e da API.
+- Modelos `Classe`, `Personagem` e `Equipamento`.
+- Configuração do Entity Framework Core com SQLite.
+- Migration inicial e criação da estrutura do banco.
+- Relacionamento entre `Personagem` e `Classe`.
+- Rotas de cadastro, listagem, alteração e exclusão de classes.
+- Arquivo de requisições HTTP para testes.
+- Versionamento do projeto com Git e GitHub.
+
+## Próximas etapas
+
+- Criar rotas para cadastrar e consultar personagens associados a classes existentes.
+- Utilizar o relacionamento para apresentar os personagens junto de suas classes.
+- Desenvolver uma funcionalidade que utilize os dados cadastrados para montar ou consultar builds de personagens.
+- Testar os fluxos completos e preparar a demonstração do projeto.
+
