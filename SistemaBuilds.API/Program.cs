@@ -1,3 +1,5 @@
+using System.Reflection.Metadata;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;    
 using SistemaBuild.API.Data;
 
@@ -15,6 +17,21 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.EnsureCreated();
 }
+
+app.MapGet("/", () =>
+{
+    return Results.Ok(" ==== SISTMA DE BUILDS ====");
+});
+
+app.MapGet("/classes/listar", (
+    [FromServices] AppDbContext ctx) =>
+{
+    if (ctx.Classes.Count() == 0)
+    {
+        return Results.BadRequest("A Lista está vazia!");
+    }
+    return Results.Ok(ctx.Classes.ToList());
+});
 
 
 
