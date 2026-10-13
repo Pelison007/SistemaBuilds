@@ -12,4 +12,12 @@ public class AppDbContext : DbContext
     {
         optionsBuilder.UseSqlite("Data Source=SistemaBuilds.db");
     }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Personagem>()
+        .HasOne(p => p.Classe) // Indica que cada personagem esta associado a uma classe
+        .WithMany() // permite que varios personagens pertençam a mesma classe
+        .HasForeignKey(p => p.ClasseId); // define ClasseId como chave estrangeira
+    }
 }
