@@ -354,6 +354,33 @@ Dessa forma, o banco de dados mantém a relação entre personagens e classes po
 
 ---
 
+## Testes HTTP
+
+Para testar as requisições da API, foi criado o arquivo `Testes/Requisicoes.http`, utilizando a extensão REST Client no Visual Studio Code.
+
+O arquivo centraliza as requisições HTTP do projeto e utiliza a variável `@baseUrl` para facilitar a configuração do endereço da API.
+
+### Requisições configuradas
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| GET | `/` | Testa o endereço raiz da API. |
+| GET | `/classes/listar` | Consulta as classes cadastradas. |
+
+Os testes devem ser executados com a API em funcionamento.
+
+## Rotas da API
+
+### Classes
+
+#### Listar classes
+- **Método:** `GET`
+- **Endpoint:** `/classes/listar`
+- **Descrição:** consulta as classes armazenadas no banco de dados SQLite.
+- **Respostas:** retorna `200 OK` com a lista de classes ou `400 Bad Request` quando não existem classes cadastradas, conforme a implementação atual.
+
+Novas rotas serão documentadas nesta seção conforme as funcionalidades forem desenvolvidas.
+
 # Desenvolvimento
 
 O sistema será desenvolvido utilizando uma API em C#, banco de dados e entidades relacionadas.
@@ -362,7 +389,6 @@ As próximas etapas serão adicionadas neste README conforme o desenvolvimento d
 
 Próximas etapas:
 
-* Configurar os relacionamentos entre as entidades
 * Configurar as tabelas no `AppDbContext`
 * Criar as migrations
 * Criar o banco de dados
