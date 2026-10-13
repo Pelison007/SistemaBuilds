@@ -332,25 +332,108 @@ SistemaBuilds
 └── README.md
 ```
 
-## Banco de Dados
+## 🗄️ Banco de Dados
 
-O projeto utiliza SQLite para armazenar os dados e Entity Framework Core para gerenciar o acesso ao banco de dados.
+O projeto utiliza **SQLite** para armazenar os dados e **Entity Framework Core** para gerenciar o acesso ao banco de dados.
 
-O `AppDbContext` define os conjuntos de entidades `Classes`, `Personagens` e `Equipamentos`, que representam as tabelas do sistema.
+O `AppDbContext` define os conjuntos de entidades que representam as tabelas do sistema:
 
-A configuração do banco é feita utilizando `UseSqlite()`, com o arquivo `SistemaBuilds.db`. A criação inicial das tabelas é realizada por meio do método `EnsureCreated()`.
+- `Classes`
+- `Personagens`
+- `Equipamentos`
 
-## Relacionamento entre Classe e Personagem
+A conexão com o banco de dados é configurada por meio do método `UseSqlite()`, utilizando o arquivo `SistemaBuilds.db`.
 
-A entidade `Personagem` possui a propriedade `ClasseId`, que referencia a propriedade `Id` da tabela `Classes`.
+A estrutura do banco é gerenciada por meio de **migrations**, permitindo registrar e aplicar alterações nos modelos de forma controlada.
 
-O relacionamento foi configurado no `AppDbContext` utilizando `HasOne()`, `WithMany()` e `HasForeignKey()`.
+---
 
-- `ClasseId`: chave estrangeira que identifica a classe do personagem.
-- `Classe`: propriedade de navegação que permite acessar a classe relacionada.
-- Uma classe pode estar associada a vários personagens.
+## 🔗 Relacionamento entre Classe e Personagem
 
-Dessa forma, o banco de dados mantém a relação entre personagens e classes por meio de uma chave estrangeira.
+A entidade `Personagem` possui a propriedade `ClasseId`, que funciona como chave estrangeira e referencia a propriedade `Id` da entidade `Classe`.
+
+O relacionamento foi configurado no `AppDbContext` utilizando os métodos `HasOne()`, `WithMany()` e `HasForeignKey()`.
+
+| Propriedade | Descrição |
+|---|---|
+| `ClasseId` | Chave estrangeira que identifica a classe do personagem. |
+| `Classe` | Propriedade de navegação que permite acessar a classe relacionada. |
+| `Classe.Id` | Identificador da classe referenciada pelo personagem. |
+
+**Cardinalidade:** uma classe pode estar associada a vários personagens, enquanto cada personagem pode estar associado a uma classe.
+
+Esse relacionamento garante que a associação entre personagens e classes seja representada no banco de dados por meio de uma chave estrangeira.
+
+---
+
+## ⚙️ Migrations
+
+As migrations do Entity Framework Core permitem controlar a criação e as alterações na estrutura do banco de dados ao longo do desenvolvimento.
+
+### 1. Verificar a versão da ferramenta
+
+Para verificar a versão instalada do `dotnet-ef`, foi executado:
+
+```powershell
+dotnet ef --version
+```
+
+**Versão utilizada:** `10.0.12`.
+
+### 2. Verificar o contexto
+
+Para confirmar que o Entity Framework Core reconhece o contexto e a configuração do banco de dados, foi executado:
+
+```powershell
+dotnet ef dbcontext info
+```
+
+O comando confirmou o reconhecimento do contexto `SistemaBuild.API.Data.AppDbContext` e do provedor SQLite.
+
+### 3. Criar a migration inicial
+
+A migration inicial foi criada com o comando:
+
+```powershell
+dotnet ef migrations add CriacaoInicial
+```
+
+Essa migration registra a criação das tabelas `Classes`, `Personagens` e `Equipamentos`, incluindo a chave estrangeira `Personagens.ClasseId`, que referencia `Classes.Id`.
+
+Os arquivos gerados ficam armazenados na pasta `Migrations`.
+
+### 4. Aplicar a migration
+
+Para aplicar a migration e criar a estrutura do banco de dados, foi executado:
+
+```powershell
+dotnet ef database update
+```
+
+A operação foi concluída com sucesso, criando as tabelas e aplicando o relacionamento definido no modelo.
+
+### 5. Verificar as migrations
+
+Para listar as migrations disponíveis e verificar seu estado de aplicação, utilize:
+
+```powershell
+dotnet ef migrations list
+```
+
+O Entity Framework Core utiliza a tabela `__EFMigrationsHistory` para registrar as migrations aplicadas ao banco de dados.
+
+### 6. Criar migrations futuras
+
+Quando houver alterações nos modelos ou na estrutura do banco, uma nova migration poderá ser criada e aplicada com os seguintes comandos:
+
+```powershell
+dotnet ef migrations add NomeDaAlteracao
+dotnet ef database update
+```
+
+Substitua `NomeDaAlteracao` por um nome que descreva a mudança realizada, como `AdicionarCampoDescricao`.
+
+Dessa forma, as alterações na estrutura do banco de dados ficam registradas e podem ser aplicadas de maneira controlada durante o desenvolvimento do projeto.
 
 ---
 
