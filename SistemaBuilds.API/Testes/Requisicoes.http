@@ -5,6 +5,25 @@
 @baseUrl = http://localhost:5011
 ### Raiz do Projeto
 GET {{baseUrl}}
-
-###
+### -- listar
 GET {{baseUrl}}/classes/listar
+Accept: application/json
+
+### -- Cadastro
+POST {{baseUrl}}/classes/cadastro
+Content-Type: application/json
+
+{
+    "nome": "Guerreiro"
+}
+
+### -- REMOVE PELO ID
+DELETE {{baseUrl}}/classes/excluir/3
+
+### -- Altera PELO ID
+PUT {{baseUrl}}/classes/alterar/1
+Content-Type: application/json
+
+{
+    "nome": "Arqueiro"
+}

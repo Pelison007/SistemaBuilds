@@ -1,6 +1,6 @@
-@SistemaBuilds.API_HostAddress = http://localhost:5011
+@baseUrl = http://localhost:5011
 
-GET {{SistemaBuilds.API_HostAddress}}/weatherforecast/
+GET {{baseUrl}}/classes/listar
 Accept: application/json
 
 ###
