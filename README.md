@@ -332,6 +332,26 @@ SistemaBuilds
 └── README.md
 ```
 
+## Banco de Dados
+
+O projeto utiliza SQLite para armazenar os dados e Entity Framework Core para gerenciar o acesso ao banco de dados.
+
+O `AppDbContext` define os conjuntos de entidades `Classes`, `Personagens` e `Equipamentos`, que representam as tabelas do sistema.
+
+A configuração do banco é feita utilizando `UseSqlite()`, com o arquivo `SistemaBuilds.db`. A criação inicial das tabelas é realizada por meio do método `EnsureCreated()`.
+
+## Relacionamento entre Classe e Personagem
+
+A entidade `Personagem` possui a propriedade `ClasseId`, que referencia a propriedade `Id` da tabela `Classes`.
+
+O relacionamento foi configurado no `AppDbContext` utilizando `HasOne()`, `WithMany()` e `HasForeignKey()`.
+
+- `ClasseId`: chave estrangeira que identifica a classe do personagem.
+- `Classe`: propriedade de navegação que permite acessar a classe relacionada.
+- Uma classe pode estar associada a vários personagens.
+
+Dessa forma, o banco de dados mantém a relação entre personagens e classes por meio de uma chave estrangeira.
+
 ---
 
 # Desenvolvimento
