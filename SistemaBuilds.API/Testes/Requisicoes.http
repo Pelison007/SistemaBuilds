@@ -1,0 +1,10 @@
+### POSTMAN ou INSOMNIA
+### Instalar a extensão REST CLIENT
+### Criar um arquivo .http
+
+@baseUrl = http://localhost:5011
+### Raiz do Projeto
+GET {{baseUrl}}
+
+###
+GET {{baseUrl}}/classes/listar
