@@ -25,5 +25,20 @@ PUT {{baseUrl}}/classes/alterar/1
 Content-Type: application/json
 
 {
-    "nome": "Arqueiro"
+    "nome": "PicaGrossa"
 }
+
+// ---- PERSONAGEM ----
+
+### -- cadastro
+POST {{baseUrl}}/personagens/cadastrar
+Content-Type: application/json
+
+{
+    "ClasseId": 1,
+    "nome": "Pelison",
+    "nivel": "30"
+}
+
+### -- Listar
+GET {{baseUrl}}/personagens/listar

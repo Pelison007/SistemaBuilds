@@ -84,4 +84,40 @@ app.MapPut("/classes/alterar/{id}", (
     return Results.Ok("O nome informado é igual ao atual. Nenhuma alteração realizada.");
 });
 
+// ---- PERSONAGEM
+app.MapPost("/personagens/cadastrar", (
+    [FromBody]Personagem personagem,
+    [FromServices] AppDbContext ctx) =>
+{
+    var existe = ctx.Classes.Any(c => c.Id == personagem.ClasseId);
+    if (!existe)
+    {
+        return Results.BadRequest("Essa classe não existe");
+    }
+    ctx.Personagens.Add(personagem);
+    ctx.SaveChanges();
+    
+    return Results.Ok("Personagem criado com sucesso, Bom jogo!!");
+});
+
+// -- Listar Personagens Cadastrados
+app.MapGet("/personagens/listar", (
+    [FromServices] AppDbContext ctx) =>
+{
+    if (!ctx.Personagens.Any())
+    {
+        return Results.BadRequest("Não há personagens cadastrados");
+    }
+
+    return Results.Ok(ctx.Personagens
+        .Include(p => p.Classe)
+        .Select(p => new
+        {
+            p.Id,
+            p.Nome,
+            p.Nivel,
+            Classe = p.Classe!.Nome
+        })
+        .ToList());
+});
 app.Run();
