@@ -120,4 +120,32 @@ app.MapGet("/personagens/listar", (
         })
         .ToList());
 });
+
+// -- Alterar Personagem
+app.MapPut("personagens/alterar/{id}", (
+    int id,
+    [FromBody] Personagem personagemAtualizado,
+    [FromServices] AppDbContext ctx) =>
+{
+    var personagem = ctx.Personagens.Find(id);
+    if (personagem == null)
+    {
+        return Results.NotFound("Não Existe esse personagem cadastrado");
+    }
+   
+    var classe = ctx.Classes.Find(personagemAtualizado.ClasseId);
+    if (classe != null)
+    {
+        personagem.ClasseId = personagemAtualizado.ClasseId;
+        personagem.Nome = personagemAtualizado.Nome;
+        personagem.Nivel = personagemAtualizado.Nivel;
+        ctx.Update(personagem);
+        ctx.SaveChanges();
+        return Results.Ok("Personagem Atualizado");
+    }
+    else
+    {
+        return Results.BadRequest("Esta nova Classe não existe");
+    }
+});
 app.Run();

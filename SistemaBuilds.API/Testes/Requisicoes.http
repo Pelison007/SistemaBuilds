@@ -42,3 +42,13 @@ Content-Type: application/json
 
 ### -- Listar
 GET {{baseUrl}}/personagens/listar
+
+### -- Alterar Personagem
+PUT {{baseUrl}}/personagens/alterar/1
+Content-Type: application/json
+
+{
+    "nome": "Pelison",
+    "nivel": 35,
+    "classeId": 4
+}
