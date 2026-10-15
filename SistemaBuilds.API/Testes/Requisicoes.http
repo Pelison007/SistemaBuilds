@@ -25,7 +25,7 @@ PUT {{baseUrl}}/classes/alterar/1
 Content-Type: application/json
 
 {
-    "nome": "PicaGrossa"
+    "nome": "Arqueiro"
 }
 
 // ---- PERSONAGEM ----
@@ -50,5 +50,8 @@ Content-Type: application/json
 {
     "nome": "Pelison",
     "nivel": 35,
-    "classeId": 4
+    "classeId": 1
 }
+
+### -- Excluir Personagem 
+DELETE {{baseUrl}}/personagens/excluir/1

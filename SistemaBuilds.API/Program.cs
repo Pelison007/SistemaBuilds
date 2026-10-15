@@ -148,4 +148,19 @@ app.MapPut("personagens/alterar/{id}", (
         return Results.BadRequest("Esta nova Classe não existe");
     }
 });
+
+// -- DELETE PERSONAGEM
+app.MapDelete("personagens/excluir/{id}", (
+    int id,
+    [FromServices] AppDbContext ctx) =>
+{
+    var personagem = ctx.Personagens.Find(id);
+    if (personagem == null)
+    {
+        return Results.NotFound("Personagem não encontrado!");
+    }
+    ctx.Personagens.Remove(personagem);
+    ctx.SaveChanges();
+    return Results.Ok("Personagem deletado com sucesso!");
+});
 app.Run();
