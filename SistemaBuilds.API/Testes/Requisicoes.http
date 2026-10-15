@@ -55,3 +55,16 @@ Content-Type: application/json
 
 ### -- Excluir Personagem 
 DELETE {{baseUrl}}/personagens/excluir/1
+
+// -- EQUIPAMENTOS --
+
+### - CADASTRO
+POST {{baseUrl}}/equipamentos/cadastrar
+Content-Type: application/json
+
+{
+    "Nome": "Cajado de Gelo",
+    "Tipo": "Arma",
+    "Ataque": 15,
+    "Defesa": 0
+}

@@ -153,14 +153,38 @@ app.MapPut("personagens/alterar/{id}", (
 app.MapDelete("personagens/excluir/{id}", (
     int id,
     [FromServices] AppDbContext ctx) =>
-{
-    var personagem = ctx.Personagens.Find(id);
-    if (personagem == null)
     {
-        return Results.NotFound("Personagem não encontrado!");
+        var personagem = ctx.Personagens.Find(id);
+        if (personagem == null)
+        {
+            return Results.NotFound("Personagem não encontrado!");
+        }
+        ctx.Personagens.Remove(personagem);
+        ctx.SaveChanges();
+        return Results.Ok("Personagem deletado com sucesso!");
     }
-    ctx.Personagens.Remove(personagem);
-    ctx.SaveChanges();
-    return Results.Ok("Personagem deletado com sucesso!");
-});
+);
+
+// --- EQUIPAMENTOS
+app.MapPost("/equipamentos/cadastrar", (
+    [FromBody]Equipamento equipamento,
+    [FromServices] AppDbContext ctx) => 
+    {
+        var existe = ctx.Equipamentos.Any(x => x.Nome == equipamento.Nome);
+        if (!existe)
+        {
+            if(equipamento.Ataque < 0 || equipamento.Defesa < 0)
+            {
+               return Results.BadRequest("Valores de ataque e defesa, não podem ser negativos."); 
+            }
+            ctx.Equipamentos.Add(equipamento);
+            ctx.SaveChanges();
+            return Results.Ok("Equipamento Cadastrado");
+        }
+        else
+        {
+            return Results.BadRequest("Já existe um equipamento com esse nome");            
+        }
+    }
+);
 app.Run();
