@@ -381,6 +381,346 @@ DELETE {{baseUrl}}/classes/excluir/1
 
 ---
 
+# 10.1. CRUD de Personagem
+
+Nesta etapa, foi desenvolvido o CRUD da entidade `Personagem`, permitindo cadastrar, listar, alterar e excluir personagens no banco de dados SQLite.
+
+Também foi utilizado o relacionamento entre `Personagem` e `Classe`, garantindo que um personagem seja associado a uma classe existente.
+
+## Rotas implementadas
+
+| Método | Endpoint | Descrição |
+|---|---|---|
+| POST | `/personagens/cadastro` | Cadastra um novo personagem. |
+| GET | `/personagens/listar` | Lista os personagens cadastrados. |
+| PUT | `/personagens/alterar/{id}` | Atualiza um personagem existente. |
+| DELETE | `/personagens/excluir/{id}` | Exclui um personagem pelo ID. |
+
+## POST — Cadastrar personagem
+
+A rota POST recebe os dados de um personagem e verifica se a classe informada existe antes de realizar o cadastro.
+
+```csharp
+app.MapPost("/personagens/cadastro", (
+    [FromBody] Personagem personagem,
+    [FromServices] AppDbContext ctx) =>
+{
+    var classe = ctx.Classes.Find(personagem.ClasseId);
+
+    if (classe == null)
+    {
+        return Results.BadRequest("Essa classe não existe");
+    }
+
+    ctx.Personagens.Add(personagem);
+    ctx.SaveChanges();
+
+    return Results.Ok("Personagem criado com sucesso, Bom jogo!!");
+});
+```
+
+### Explicação
+
+- `[FromBody]`: recebe os dados enviados no corpo da requisição.
+- `[FromServices]`: recebe o contexto do banco por injeção de dependência.
+- `Find()`: procura uma entidade pela chave primária.
+- `classe == null`: verifica se a classe não foi encontrada.
+- `Add()`: adiciona o personagem ao contexto.
+- `SaveChanges()`: grava o personagem no banco de dados.
+
+O `Find()` retorna a entidade encontrada ou `null` caso não exista.
+
+### Exemplo de requisição
+
+```http
+POST {{baseUrl}}/personagens/cadastro
+Content-Type: application/json
+
+{
+    "nome": "Pelison",
+    "nivel": 30,
+    "classeId": 2
+}
+```
+
+O `classeId` deve corresponder ao ID de uma classe existente.
+
+---
+
+## GET — Listar personagens
+
+A rota GET consulta os personagens cadastrados.
+
+Durante o desenvolvimento, foi estudado como utilizar `Include()` e `Select()` para trabalhar com os dados da classe relacionada.
+
+### Utilizando Include()
+
+```csharp
+var personagens = ctx.Personagens
+    .Include(p => p.Classe)
+    .ToList();
+```
+
+O método `Include()` carrega a classe relacionada a cada personagem.
+
+Dessa forma, ao retornar os objetos diretamente, a API pode apresentar:
+
+```json
+[
+    {
+        "id": 1,
+        "nome": "Pelison",
+        "nivel": 30,
+        "classeId": 2,
+        "classe": {
+            "id": 2,
+            "nome": "Mago"
+        }
+    }
+]
+```
+
+Para utilizar `Include()`, é necessário importar:
+
+```csharp
+using Microsoft.EntityFrameworkCore;
+```
+
+### Utilizando Select()
+
+O `Select()` permite escolher quais informações queremos obter na consulta.
+
+```csharp
+var personagens = ctx.Personagens
+    .Select(p => new
+    {
+        p.Id,
+        p.Nome,
+        p.Nivel,
+        Classe = p.Classe!.Nome
+    })
+    .ToList();
+```
+
+Nesse exemplo, selecionamos o ID, o nome, o nível e o nome da classe relacionada.
+
+A expressão:
+
+```csharp
+Classe = p.Classe!.Nome
+```
+
+Significa:
+
+- `p`: representa cada personagem da consulta.
+- `p.Classe`: acessa a propriedade de navegação da classe relacionada.
+- `.Nome`: acessa o nome dessa classe.
+- `Classe =`: define o nome da propriedade que será criada no resultado.
+- `!`: informa ao compilador que esperamos que `Classe` não seja nula, sem realizar uma verificação em tempo de execução.
+
+O resultado fica mais simples:
+
+```json
+[
+    {
+        "id": 1,
+        "nome": "Pelison",
+        "nivel": 30,
+        "classe": "Mago"
+    }
+]
+```
+
+### Diferença entre Include() e Select()
+
+| Método | Função |
+|---|---|
+| `Include()` | Carrega entidades relacionadas. |
+| `Select()` | Seleciona ou projeta as informações desejadas. |
+| `Find()` | Procura uma entidade pela chave primária. |
+| `Any()` | Verifica se existe algum registro que satisfaça uma condição. |
+| `ToList()` | Executa a consulta e transforma os resultados em uma lista. |
+
+**Aprendizado importante:** quando utilizamos `Select()` para acessar diretamente `p.Classe.Nome`, o Entity Framework Core consegue gerar a consulta necessária para buscar o nome da classe relacionada.
+
+Por isso, nesse caso, não precisamos utilizar `Include()` junto com `Select()`.
+
+### Verificar se existem personagens
+
+Também utilizamos `Any()` para verificar se existe algum personagem cadastrado:
+
+```csharp
+if (!ctx.Personagens.Any())
+{
+    return Results.BadRequest("Não há personagens cadastrados");
+}
+```
+
+O método `Any()` retorna `true` quando encontra pelo menos um registro e `false` quando não encontra nenhum.
+
+O operador `!` inverte esse resultado.
+
+Assim, `!ctx.Personagens.Any()` significa que não existem personagens cadastrados.
+
+### Exemplo de requisição
+
+```http
+GET {{baseUrl}}/personagens/listar
+Accept: application/json
+```
+
+---
+
+## PUT — Alterar personagem
+
+A rota PUT permite atualizar o nome, o nível e a classe de um personagem existente.
+
+Antes de atualizar, verificamos se o personagem existe e se a nova classe informada está cadastrada.
+
+```csharp
+app.MapPut("/personagens/alterar/{id}", (
+    int id,
+    [FromBody] Personagem personagemAtualizado,
+    [FromServices] AppDbContext ctx) =>
+{
+    var personagem = ctx.Personagens.Find(id);
+
+    if (personagem == null)
+    {
+        return Results.NotFound("Personagem não encontrado");
+    }
+
+    var classe = ctx.Classes.Find(personagemAtualizado.ClasseId);
+
+    if (classe == null)
+    {
+        return Results.BadRequest("Esta nova classe não existe");
+    }
+
+    personagem.ClasseId = personagemAtualizado.ClasseId;
+    personagem.Nome = personagemAtualizado.Nome;
+    personagem.Nivel = personagemAtualizado.Nivel;
+
+    ctx.SaveChanges();
+
+    return Results.Ok("Personagem atualizado");
+});
+```
+
+### Explicação
+
+1. O `id` é recebido pela URL.
+2. O `Find(id)` procura o personagem que será alterado.
+3. Se o personagem não existir, retornamos `404 Not Found`.
+4. O sistema procura a classe informada no corpo da requisição.
+5. Se a classe não existir, retornamos `400 Bad Request`.
+6. Se os dados forem válidos, atualizamos as propriedades do personagem.
+7. O `SaveChanges()` grava as alterações no banco.
+
+### Por que não precisamos de Update()?
+
+Como buscamos o personagem utilizando:
+
+```csharp
+var personagem = ctx.Personagens.Find(id);
+```
+
+O Entity Framework Core já acompanha esse objeto por meio do mecanismo chamado *Change Tracking*.
+
+Quando modificamos suas propriedades, o Entity Framework consegue detectar as alterações.
+
+Por isso, nesse caso, basta executar:
+
+```csharp
+ctx.SaveChanges();
+```
+
+Não é necessário chamar `ctx.Update(personagem)`.
+
+### Exemplo de requisição
+
+```http
+PUT {{baseUrl}}/personagens/alterar/1
+Content-Type: application/json
+
+{
+    "nome": "Pelison",
+    "nivel": 35,
+    "classeId": 2
+}
+```
+
+O jogador pode alterar o nível ou a classe sem precisar obrigatoriamente mudar o nome.
+
+---
+
+## DELETE — Excluir personagem
+
+A rota DELETE permite remover um personagem cadastrado utilizando seu ID.
+
+```csharp
+app.MapDelete("/personagens/excluir/{id}", (
+    int id,
+    [FromServices] AppDbContext ctx) =>
+{
+    var personagem = ctx.Personagens.Find(id);
+
+    if (personagem == null)
+    {
+        return Results.NotFound("Personagem não encontrado!");
+    }
+
+    ctx.Personagens.Remove(personagem);
+    ctx.SaveChanges();
+
+    return Results.Ok("Personagem excluído com sucesso!");
+});
+```
+
+### Explicação
+
+- `Find(id)`: procura o personagem pelo identificador.
+- `personagem == null`: verifica se o personagem não existe.
+- `Results.NotFound()`: retorna o status HTTP `404`.
+- `Remove(personagem)`: marca o personagem para exclusão.
+- `SaveChanges()`: executa a exclusão no banco.
+- `Results.Ok()`: retorna o status HTTP `200`, indicando sucesso.
+
+O método `Remove()` não exclui imediatamente o registro do banco. A exclusão é efetivada quando executamos `SaveChanges()`.
+
+### Exemplo de requisição
+
+```http
+DELETE {{baseUrl}}/personagens/excluir/1
+```
+
+Se o personagem existir, será excluído.
+
+Se a requisição for executada novamente com o mesmo ID, a API deverá retornar `404 Not Found`, pois o personagem já não estará cadastrado.
+
+---
+
+## Aprendizados com o CRUD de Personagem
+
+Durante a implementação, foram praticados os seguintes conceitos:
+
+- Criação de endpoints com `MapPost()`, `MapGet()`, `MapPut()` e `MapDelete()`.
+- Recebimento de dados com `[FromBody]`.
+- Injeção de dependência com `[FromServices]`.
+- Consulta de registros utilizando `Find()` e `Any()`.
+- Validação da existência de classes antes de cadastrar ou alterar personagens.
+- Utilização do relacionamento entre `Personagem` e `Classe`.
+- Carregamento de entidades relacionadas utilizando `Include()`.
+- Seleção de informações utilizando `Select()`.
+- Atualização de entidades acompanhadas pelo Entity Framework Core.
+- Exclusão de registros utilizando `Remove()`.
+- Persistência das alterações com `SaveChanges()`.
+- Utilização de respostas HTTP como `200 OK`, `400 Bad Request` e `404 Not Found`.
+
+Com essa etapa, foram implementadas as quatro operações do CRUD de Personagem.
+
+O próximo objetivo é utilizar os dados cadastrados em uma funcionalidade do sistema de builds, indo além das operações básicas de cadastro e consulta.
+
 # 11. Controle de versão com Git e GitHub
 
 O Git é utilizado para registrar as alterações realizadas durante o desenvolvimento, enquanto o GitHub hospeda o repositório remoto.
@@ -474,14 +814,19 @@ A estrutura acima representa a organização esperada dos arquivos principais. A
 - Configuração do Entity Framework Core com SQLite.
 - Migration inicial e criação da estrutura do banco.
 - Relacionamento entre `Personagem` e `Classe`.
-- Rotas de cadastro, listagem, alteração e exclusão de classes.
+- CRUD completo de Classe.
+- CRUD completo de Personagem.
+- Validação da existência de classes durante o cadastro e a alteração de personagens.
+- Consulta de personagens com informações das classes relacionadas.
+- Estudo dos métodos `Find()`, `Any()`, `Include()`, `Select()`, `Add()`, `Remove()` e `SaveChanges()`.
 - Arquivo de requisições HTTP para testes.
 - Versionamento do projeto com Git e GitHub.
 
 ## Próximas etapas
 
-- Criar rotas para cadastrar e consultar personagens associados a classes existentes.
-- Utilizar o relacionamento para apresentar os personagens junto de suas classes.
-- Desenvolver uma funcionalidade que utilize os dados cadastrados para montar ou consultar builds de personagens.
-- Testar os fluxos completos e preparar a demonstração do projeto.
+- Testar e revisar os fluxos completos do CRUD de Personagem.
+- Desenvolver funcionalidades envolvendo os equipamentos cadastrados.
+- Utilizar personagens, classes e equipamentos em uma funcionalidade de montagem ou consulta de builds.
+- Validar os requisitos da atividade.
+- Preparar a demonstração do projeto.
 
